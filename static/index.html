@@ -360,10 +360,184 @@
             font-weight: 600;
         }
 
-        /* 响应式 */
+        /* 响应式 - 平板 */
         @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* 响应式 - 手机 */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 10px 12px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .app-header > div:first-child {
+                gap: 8px;
+            }
+
+            .app-header > div:last-child {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            .logo-text {
+                font-size: 15px;
+            }
+
+            main {
+                padding: 10px !important;
+            }
+
+            .main-grid {
+                gap: 12px !important;
+            }
+
+            .card-body {
+                padding: 12px;
+            }
+
+            /* 价格显示 */
+            .price-display {
+                padding: 14px;
+            }
+
+            .price-value {
+                font-size: 28px;
+            }
+
+            /* Greeks 网格 - 手机上3列 */
+            #greeksGrid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .greek-card {
+                padding: 10px 6px;
+            }
+
+            .greek-value {
+                font-size: 18px;
+            }
+
+            .greek-label {
+                font-size: 10px;
+            }
+
+            .greek-desc {
+                font-size: 9px;
+            }
+
+            /* IV 分析 - 手机上单列 */
+            #tabIV .card-body > div {
+                grid-template-columns: 1fr !important;
+            }
+
+            .chart-container {
+                height: 300px;
+                min-height: 250px;
+            }
+
+            #tabIV .chart-container {
+                height: 280px !important;
+            }
+
+            /* Tab 栏 */
+            .tab-bar {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab-btn {
+                padding: 10px 14px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            /* 盈亏信息栏 */
+            .pl-bar {
+                gap: 8px;
+                padding: 10px 12px;
+            }
+
+            .pl-item {
+                font-size: 11px;
+            }
+
+            /* 输入框 */
+            .input-field {
+                padding: 10px 12px;
+                font-size: 16px; /* 防止 iOS 自动缩放 */
+            }
+
+            .toggle-btn {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .btn-calc {
+                padding: 12px 20px;
+                font-size: 15px;
+            }
+
+            .strategy-select {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            /* 参数摘要 */
+            #summaryMoneyness {
+                font-size: 11px;
+            }
+
+            /* 工具提示 - 手机上调整位置 */
+            .term .tip-content {
+                left: auto;
+                right: 0;
+                width: 180px;
+                font-size: 10px;
+            }
+
+            .term .tip-content::after {
+                left: auto;
+                right: 16px;
+            }
+
+            /* ECharts tooltip 适配 */
+            .chart-container canvas {
+                touch-action: pan-y;
+            }
+        }
+
+        /* 响应式 - 小屏手机 */
+        @media (max-width: 400px) {
+            .app-header > div:last-child > span:last-child {
+                display: none; /* 隐藏版本号 */
+            }
+
+            .logo-text {
+                font-size: 14px;
+            }
+
+            #greeksGrid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .greek-value {
+                font-size: 16px;
+            }
+
+            .price-value {
+                font-size: 24px;
+            }
+
+            .pl-bar {
+                flex-direction: column;
+                gap: 6px;
             }
         }
 
@@ -495,7 +669,8 @@
             border-top-color: #373e47;
         }
 
-        .term:hover .tip-content {
+        .term:hover .tip-content,
+        .term.tip-active .tip-content {
             display: block;
         }
 
@@ -884,6 +1059,26 @@ const state = {
 document.addEventListener('DOMContentLoaded', async () => {
     initCharts();
     loadStrategies();
+
+    // 移动端：点击触发工具提示（手机没有 hover）
+    if ('ontouchstart' in window) {
+        document.addEventListener('click', (e) => {
+            const term = e.target.closest('.term');
+            // 关闭其他已打开的提示
+            document.querySelectorAll('.term.tip-active').forEach(el => {
+                if (el !== term) el.classList.remove('tip-active');
+            });
+            if (term) {
+                term.classList.toggle('tip-active');
+                e.stopPropagation();
+            }
+        });
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.term')) {
+                document.querySelectorAll('.term.tip-active').forEach(el => el.classList.remove('tip-active'));
+            }
+        });
+    }
 
     // 静默检查服务器状态（不弹错误打扰用户）
     try {
